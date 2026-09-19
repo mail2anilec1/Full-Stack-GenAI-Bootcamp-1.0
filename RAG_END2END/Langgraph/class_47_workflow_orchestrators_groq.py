@@ -175,6 +175,7 @@
 # In[ ]:
 
 
+import argparse
 import os
 
 from dotenv import load_dotenv
@@ -187,6 +188,54 @@ if not os.getenv("GROQ_API_KEY"):
     )
 
 MODEL_NAME = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+
+
+THEORY = """
+LANGGRAPH WORKFLOW THEORY
+=========================
+
+1. SEQUENTIAL
+    Fixed order: node A -> node B -> node C. Each node receives the state
+    produced by the previous node. Use it when every step depends on the prior
+    step, such as draft -> improve -> polish.
+
+2. PARALLEL
+    Fan-out runs independent nodes from the same input, then fan-in combines
+    their results. Use it when summary, keyword extraction, and question
+    generation do not depend on one another. Reducers such as operator.add are
+    required when multiple branches write to the same state field.
+
+3. ROUTING
+    A classifier chooses one branch from several specialists. Use structured
+    output for the route so the graph receives a known value such as technical,
+    billing, or general. Only the selected branch runs.
+
+4. ORCHESTRATOR-WORKER
+    An orchestrator creates a plan, Send creates one worker task per planned
+    item, and a final node combines the worker results. Use it when the number
+    of subtasks is dynamic. Worker count directly increases model usage.
+
+5. EVALUATOR-OPTIMIZER
+    A generator creates an answer, an evaluator returns feedback, and the graph
+    loops until the answer is accepted or a maximum attempt count is reached.
+    The attempt limit is essential to prevent an infinite model-call loop.
+
+6. AGENT
+    The model decides whether to finish or call a tool. ToolNode executes the
+    requested tool, adds its result to MessagesState, and sends control back to
+    the model. Use this when tool choice must be model-controlled.
+
+WORKFLOW VERSUS AGENT
+---------------------
+The first five patterns are developer-controlled workflows: graph edges define
+the allowed path. The agent pattern gives the model more runtime freedom to
+choose tools, while the graph still controls the agent/tool loop.
+
+Run one pattern at a time to control latency, cost, and Groq token usage:
+     python class_47_workflow_orchestrators_groq.py --workflow sequential
+"""
+
+print(THEORY)
 
 
 # ## Shared imports and model
@@ -397,6 +446,10 @@ show_graph(sequential_graph)
 
 
 def run_sequential_workflow():
+    """Run a fixed draft, improve, and polish chain.
+
+    This is the simplest workflow pattern: each node has one successor.
+    """
     print("\n" + "=" * 70)
     print("1. SEQUENTIAL WORKFLOW")
     print("=" * 70)
@@ -417,9 +470,6 @@ def run_sequential_workflow():
 
 
 # In[ ]:
-
-
-sequential_result = run_sequential_workflow()
 
 
 # #### Common mistakes
@@ -594,6 +644,10 @@ show_graph(parallel_graph)
 
 
 def run_parallelization():
+    """Run independent analysis branches and aggregate their results.
+
+    The graph fans out from one topic and fans in at the aggregate node.
+    """
     print("\n" + "=" * 70)
     print("2. PARALLELIZATION - FAN OUT / FAN IN")
     print("=" * 70)
@@ -614,9 +668,6 @@ def run_parallelization():
 
 
 # In[ ]:
-
-
-parallel_result = run_parallelization()
 
 
 # #### Common mistakes
@@ -821,6 +872,7 @@ show_graph(routing_graph)
 
 
 def run_routing():
+    """Classify a request and execute exactly one specialist branch."""
     print("\n" + "=" * 70)
     print("3. ROUTING")
     print("=" * 70)
@@ -847,9 +899,6 @@ def run_routing():
 
 
 # In[ ]:
-
-
-routing_result = run_routing()
 
 
 # #### Common mistakes
@@ -945,7 +994,8 @@ Create a report plan for:
 
 {state['topic']}
 
-Create appropriate sections.
+Create no more than 2 appropriate sections.
+Keep each section description under 30 words.
 """
     )
 
@@ -1082,6 +1132,11 @@ show_graph(orchestrator_worker_graph)
 
 
 def run_orchestrator_worker():
+    """Create dynamic section workers and combine their completed sections.
+
+    The planner controls worker count, so this pattern can use more tokens
+    than a fixed graph.
+    """
     print("\n" + "=" * 70)
     print("4. ORCHESTRATOR-WORKER WITH Send()")
     print("=" * 70)
@@ -1092,7 +1147,8 @@ def run_orchestrator_worker():
         {
             "topic": "AI Agents in Enterprise",
             "completed_sections": [],
-        }
+        },
+        config={"max_concurrency": 1},
     )
 
     print(
@@ -1103,9 +1159,6 @@ def run_orchestrator_worker():
 
 
 # In[ ]:
-
-
-orchestrator_result = run_orchestrator_worker()
 
 
 # #### Common mistakes
@@ -1343,6 +1396,7 @@ show_graph(evaluator_optimizer_graph)
 
 
 def run_evaluator_optimizer():
+    """Generate, evaluate, and improve an answer with a bounded retry loop."""
     print("\n" + "=" * 70)
     print("5. EVALUATOR-OPTIMIZER")
     print("=" * 70)
@@ -1382,9 +1436,6 @@ def run_evaluator_optimizer():
 
 
 # In[ ]:
-
-
-evaluator_result = run_evaluator_optimizer()
 
 
 # #### Common mistakes
@@ -1570,6 +1621,7 @@ show_graph(agent_graph)
 
 
 def run_agent_loop():
+    """Let the model choose whether to call the arithmetic tools."""
     print("\n" + "=" * 70)
     print("6. AGENT LOOP WITH TOOLS")
     print("=" * 70)
@@ -1599,9 +1651,6 @@ def run_agent_loop():
 # In[ ]:
 
 
-agent_result = run_agent_loop()
-
-
 # #### Common mistakes
 # 
 # - Creating tools but forgetting to bind them to the model.
@@ -1612,3 +1661,34 @@ agent_result = run_agent_loop()
 # 
 # Add a `subtract` tool and test a request that requires multiplication, addition, and subtraction.
 # 
+
+
+def main() -> None:
+    """Run one selected workflow instead of invoking every demo at startup."""
+    parser = argparse.ArgumentParser(description="Run one LangGraph workflow demo.")
+    parser.add_argument(
+        "--workflow",
+        choices=[
+            "sequential",
+            "parallel",
+            "routing",
+            "orchestrator",
+            "evaluator",
+            "agent",
+        ],
+        default="sequential",
+        help="Workflow to run; only one workflow is executed per process.",
+    )
+    workflow_runners = {
+        "sequential": run_sequential_workflow,
+        "parallel": run_parallelization,
+        "routing": run_routing,
+        "orchestrator": run_orchestrator_worker,
+        "evaluator": run_evaluator_optimizer,
+        "agent": run_agent_loop,
+    }
+    workflow_runners[parser.parse_args().workflow]()
+
+
+if __name__ == "__main__":
+    main()
