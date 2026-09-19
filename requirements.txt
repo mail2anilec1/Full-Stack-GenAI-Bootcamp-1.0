@@ -41,3 +41,5 @@ langgraph-checkpoint-postgres
 # "psycopg[binary,pool]"
 pydantic
 langgraph-checkpoint-sqlite
+streamlit
+python-dotenv
