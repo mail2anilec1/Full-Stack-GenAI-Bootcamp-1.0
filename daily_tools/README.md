@@ -6,16 +6,17 @@
 
 ### Update the repository
 
-Run this command from the repository root to pull the latest code from the
-official bootcamp repository (the `upstream` remote):
+Run this command from the repository root to merge the latest `main` branch
+from the official bootcamp repository (`upstream`) into your current branch:
 
 ```bash
 ./daily_tools/pull_latest.sh
 ```
 
-The script uses a fast-forward-only pull and will stop instead of creating a
-merge commit, overwriting local commits, or updating a working tree with
-uncommitted changes.
+The script stashes tracked and untracked changes, fetches upstream, merges
+`upstream/main` without discarding local commits, then restores the stash after
+a successful merge. If the merge has conflicts, the stash is left intact until
+you resolve or abort the merge.
 
 To pull from your fork instead, pass `origin` explicitly:
 
