@@ -1,12 +1,11 @@
 # LangChain Tutorial Script: Groq + VS Code Debugging Guide
 
-This folder contains a runnable Python companion to the repository's
-[`langchain_latest_version.ipynb`](../../langchain_latest_version.ipynb)
-notebook:
+This folder contains a runnable Python companion to the class notebook
+[`langchain_latest_version.ipynb`](../../Class-51-04-oct-2026-langchain-new-version-recap/langchain_latest_version.ipynb):
 
 - [`langchain_latest_version_groq.py`](./langchain_latest_version_groq.py) —
-  small, named demos that you can run independently and step through in a
-  debugger.
+  named demonstrations that map the notebook's methods into runnable,
+  debugger-friendly lessons.
 
 The script uses Groq for chat completions instead of OpenAI. It is an
 educational companion, not a full document-ingestion RAG application: tools
@@ -18,9 +17,10 @@ named `search_knowledge_base` and `search_web` return placeholder text.
 - A Groq API key for demos that call a chat model.
 - VS Code's **Python** and **Python Debugger** extensions to use the debugger.
 
-The `document`, `messages`, and `prompts` demos run locally and do not need a
-Groq API key. The other demos make calls to Groq. The `deep-agent` demo also
-requires the optional `deepagents` package.
+The `architecture`, `document`, `messages`, `prompts`, and `langsmith` demos
+run locally and do not need a Groq API key. Demos involving model calls need
+Groq credentials. Deep Agent demos additionally require the optional
+`deepagents` package.
 
 ## 2. Install dependencies
 
@@ -98,6 +98,12 @@ From the repository root, print the available choices:
 python RAG_END2END/Langchain/langchain_latest_version_groq.py --help
 ```
 
+List every companion lesson:
+
+```bash
+python RAG_END2END/Langchain/langchain_latest_version_groq.py --demo list
+```
+
 Run one example by name:
 
 ```bash
@@ -114,20 +120,47 @@ python RAG_END2END/Langchain/langchain_latest_version_groq.py
 
 | `--demo` value | What it demonstrates | Calls Groq? |
 |---|---|---:|
+| `architecture` | Roles of LangChain packages and ecosystem components | No |
 | `document` | LangChain `Document` content, ID, and metadata | No |
-| `messages` | System/human/AI messages and trimming conversation history | No |
+| `messages` | System/human/AI/tool messages, multimodal blocks, trimming | No |
 | `prompts` | Text/chat prompts, history placeholders, partial prompts | No |
-| `chat` | `invoke`, `batch`, and `stream` on a chat model | Yes |
-| `parsers` | String, JSON, Pydantic, and native structured output | Yes |
-| `tools` | A local calculator, model tool calls, and an agent | Yes |
-| `agents` | An agent response matching a Pydantic schema | Yes |
-| `middleware` | Hooks before and after a model call | Yes |
-| `deep-agent` | Optional Deep Agents example with a placeholder search tool | Yes |
-| `all` | Runs all demos except `deep-agent` | Yes |
+| `chat` | Model profiles and `invoke`, `batch`, `stream` | Yes |
+| `parsers` | String, JSON, Pydantic, native structured output | Yes |
+| `tools` | Direct tool invoke, manual tool-result round trip, agent execution | Yes |
+| `show-profile` | `ToolRuntime`, `context_schema`, trusted profile context | Yes |
+| `agents` | Tool-using agent with structured response | Yes |
+| `structured-agents` | Automatic, `ProviderStrategy`, and `ToolStrategy` | Yes |
+| `middleware` | `before_model` and `after_model` lifecycle hooks | Yes |
+| `dynamic-prompt` | Role-sensitive system prompt using trusted context | Yes |
+| `model-router` | Route model calls based on conversation length | Yes |
+| `prebuilt-middleware` | Configure limits, retries, PII, HITL, summaries, and more | No |
+| `deep-agent` | Optional basic Deep Agent with sample search tool | Yes |
+| `deep-agent-full` | Full subagent/skills/memory/backend/permissions configuration | No model request by default; Groq key required to construct model clients |
+| `langsmith` | Check tracing configuration without exposing API keys | No |
+| `all` | Runs core lessons; omits optional Deep Agent demos | Yes |
 
-Start with `document`, `messages`, or `prompts` to learn and debug without
-network requests. `--demo all` makes several Groq requests and may take longer
-or encounter account rate limits; run individual demos while learning.
+Start with `architecture`, `document`, `messages`, `prompts`, or `langsmith`
+to learn without network requests. `--demo all` makes several Groq requests
+and may take longer or encounter account rate limits; run individual demos
+while learning.
+
+`--demo list` displays the exact current selector names. In particular,
+`show-profile` covers the notebook's `ToolRuntime` example end to end, while
+`tools` demonstrates the lower-level manual tool-call/result-message round
+trip. The `structured-agents`, `dynamic-prompt`, `model-router`, and
+`prebuilt-middleware` lessons cover the corresponding notebook patterns.
+
+The full Deep Agent configuration is optional:
+
+```bash
+python RAG_END2END/Langchain/langchain_latest_version_groq.py --demo deep-agent-full
+```
+
+This constructs tools, subagents, skills, memory, backend, permissions,
+checkpointer, store, runtime context, and a Pydantic response schema without
+invoking the model. A Groq key is still needed to construct its model clients.
+Add `--invoke-deep-agent` to make a Groq request. The email and delete examples
+are simulated and do not perform those operations.
 
 ## 5. Set up VS Code debugging
 
