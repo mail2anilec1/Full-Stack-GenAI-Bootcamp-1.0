@@ -1022,25 +1022,48 @@ def demo_langsmith() -> None:
 
     Set ``LANGSMITH_TRACING=true``, ``LANGSMITH_API_KEY`` and optionally
     ``LANGSMITH_PROJECT`` in the repository-root ``.env`` file to enable
-    tracing. This demo reports whether values are configured but never prints
-    the key. LangChain integrations can then send traces for supported
-    invocations to the selected LangSmith project.
+    tracing. The older ``LANGCHAIN_TRACING_V2``, ``LANGCHAIN_API_KEY`` and
+    ``LANGCHAIN_PROJECT`` names are also recognized. This demo reports which
+    settings are present but never prints a key. LangChain integrations can
+    then send traces for supported invocations to the selected project.
     """
-    tracing_enabled = os.getenv("LANGSMITH_TRACING", "").casefold() in {
+    tracing_value = os.getenv(
+        "LANGSMITH_TRACING",
+        os.getenv("LANGCHAIN_TRACING_V2", ""),
+    )
+    tracing_enabled = tracing_value.strip().casefold() in {
         "true",
         "1",
         "yes",
     }
-    key_configured = bool(os.getenv("LANGSMITH_API_KEY"))
-    project = os.getenv("LANGSMITH_PROJECT", "default project")
+    key_configured = bool(
+        os.getenv("LANGSMITH_API_KEY") or os.getenv("LANGCHAIN_API_KEY")
+    )
+    project = (
+        os.getenv("LANGSMITH_PROJECT")
+        or os.getenv("LANGCHAIN_PROJECT")
+        or "default project"
+    )
     print("Tracing enabled:", tracing_enabled)
     print("API key configured:", key_configured)
     print("Project:", project)
     if not tracing_enabled or not key_configured:
+        missing = []
+        if not tracing_enabled:
+            missing.append("LANGSMITH_TRACING=true")
+        if not key_configured:
+            missing.append("LANGSMITH_API_KEY")
+        print("LangSmith tracing is not fully configured.")
         print(
-            "To enable tracing, configure LANGSMITH_TRACING=true and "
-            "LANGSMITH_API_KEY in the repository-root .env file."
+            "Add the missing setting(s) to the repository-root .env file: "
+            + ", ".join(missing)
+            + "."
         )
+        print(
+            "A project name is optional; set LANGSMITH_PROJECT to choose one."
+        )
+    else:
+        print("LangSmith tracing is configured for supported model/agent calls.")
 
 
 DEMO_FUNCTIONS: dict[str, Callable[..., None]] = {
