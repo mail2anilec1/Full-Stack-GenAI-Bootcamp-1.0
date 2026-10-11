@@ -118,3 +118,23 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
     
+# WITHOUT async
+
+# Program
+#   ↓
+# Call API / MCP Server
+#   ↓
+# WAIT.............
+#   ↓
+# Response comes
+#   ↓
+# Next task starts
+
+# WITH async
+
+# Task 1 → Call API ──────── waiting
+#               │
+#               ├── meanwhile → Task 2 runs
+#               ├── meanwhile → Task 3 runs
+#               │
+# Response ←────┘
