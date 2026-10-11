@@ -66,3 +66,6 @@ Check:
 3. Weather
 4. Hotel
 """
+
+if __name__ == "__main__":
+    server.run()
