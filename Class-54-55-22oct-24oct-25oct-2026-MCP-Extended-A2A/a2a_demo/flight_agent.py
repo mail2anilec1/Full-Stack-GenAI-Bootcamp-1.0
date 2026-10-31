@@ -9,20 +9,15 @@ from a2a.server.tasks import InMemoryTaskStore
 from a2a.types import AgentCapabilities, AgentCard, AgentInterface, AgentSkill
 from starlette.applications import Starlette
 
-
-class HotelAgentExecutor(AgentExecutor):
-    async def execute(
-        self,
-        context: RequestContext,
-        event_queue: EventQueue,
-    ) -> None:
+class FlightAgentExecutor(AgentExecutor):
+    async def execute(self,context: RequestContext,event_queue: EventQueue,) -> None:
         query = get_message_text(context.message) if context.message else ""
 
         result = (
-            "Hotel Agent result:\n"
-            "Dubai, 5 nights\n"
-            "1. Business Bay Hotel | 4-star | ₹9,500/night\n"
-            "2. Downtown Executive Hotel | 4-star | ₹11,000/night\n"
+            "Flight Agent result:\n"
+            "Bangalore -> Dubai\n"
+            "1. Emirates EK569 | Non-stop | ₹28,000\n"
+            "2. Air India AI995 | 1 stop | ₹24,500\n"
             f"\nReceived task: {query}"
         )
 
@@ -30,27 +25,23 @@ class HotelAgentExecutor(AgentExecutor):
             new_text_message(result)
         )
 
-    async def cancel(
-        self,
-        context: RequestContext,
-        event_queue: EventQueue,
-    ) -> None:
+    async def cancel(self,context: RequestContext,event_queue: EventQueue,) -> None:
         raise NotImplementedError("Cancellation is not supported.")
 
 
 skill = AgentSkill(
-    id="find_hotels",
-    name="Find Hotels",
-    description="Finds hotel options for a destination.",
+    id="search_flights",
+    name="Search Flights",
+    description="Searches flight options between cities.",
     input_modes=["text/plain"],
     output_modes=["text/plain"],
-    tags=["travel", "hotel"],
-    examples=["Find a 4-star hotel in Dubai"],
+    tags=["travel", "flight"],
+    examples=["Find flights from Bangalore to Dubai"],
 )
 
 agent_card = AgentCard(
-    name="Hotel Agent",
-    description="Specialized agent for finding hotels.",
+    name="Flight Agent",
+    description="Specialized agent for searching flights.",
     version="1.0.0",
     default_input_modes=["text/plain"],
     default_output_modes=["text/plain"],
@@ -61,7 +52,7 @@ agent_card = AgentCard(
     supported_interfaces=[
         AgentInterface(
             protocol_binding="JSONRPC",
-            url="http://127.0.0.1:10000",
+            url="http://127.0.0.1:9999",
             protocol_version="1.0",
         )
     ],
@@ -69,7 +60,7 @@ agent_card = AgentCard(
 )
 
 request_handler = DefaultRequestHandler(
-    agent_executor=HotelAgentExecutor(),
+    agent_executor=FlightAgentExecutor(),
     task_store=InMemoryTaskStore(),
     agent_card=agent_card,
 )
@@ -82,4 +73,4 @@ app = Starlette(
 )
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=10000)
+    uvicorn.run(app, host="127.0.0.1", port=9999)

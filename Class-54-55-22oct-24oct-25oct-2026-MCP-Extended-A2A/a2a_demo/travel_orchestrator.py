@@ -7,19 +7,12 @@ from a2a.helpers import get_message_text, new_text_message
 from a2a.types import Message, Role, SendMessageRequest
 
 
-async def call_remote_agent(
-    base_url: str,
-    task_text: str,
-) -> str:
+async def call_remote_agent(base_url: str, task_text: str,) -> str:
     async with httpx.AsyncClient() as httpx_client:
-        resolver = A2ACardResolver(
-            httpx_client=httpx_client,
-            base_url=base_url,
-        )
-
+        resolver = A2ACardResolver(httpx_client=httpx_client,base_url=base_url)
         agent_card = await resolver.get_agent_card()
-
         print(f"\nDiscovered Agent: {agent_card.name}")
+        
         print("Skills:")
         for skill in agent_card.skills:
             print("-", skill.name)
@@ -59,8 +52,7 @@ async def main():
     print("=" * 65)
 
     user_request = (
-        "Plan a 5-day Dubai trip from Bangalore. "
-        "I need a flight and a 4-star hotel."
+        "Plan a 5-day Dubai trip from Bangalore. I need a flight and a 4-star hotel."
     )
 
     print("\nUSER REQUEST:")
