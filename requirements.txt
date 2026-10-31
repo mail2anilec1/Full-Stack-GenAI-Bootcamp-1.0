@@ -51,4 +51,9 @@ httpx
 uvicorn
 a2a-sdk[http-server]>=1.0
 starlette
-
+guardrails-ai==0.11.0
+guardrails-ai-profanity-free 
+guardrails-ai-toxic-language 
+guardrails-ai-detect-pii 
+guardrails-ai-regex-match 
+guardrails-ai-detect-jailbreak
