@@ -2,7 +2,7 @@
 
 This file preserves the notebook's lesson order and uses VS Code/Jupyter
 Interactive Window cell markers so each lab can be run and debugged separately.
-The default CORE path is deterministic and offline. HUB, Presidio, and OpenAI
+The default CORE path is deterministic and offline. HUB, Presidio, and Groq
 labs remain opt-in through the flags below and require their documented packages
 or credentials when enabled.
 
@@ -16,10 +16,10 @@ Open this file in VS Code, set a breakpoint, and press F5 to step through it.
 """
 
 # %% [markdown] notebook cell 00
-# # 🛡️ AI Guardrails — Practical Masterclass v2# ### **From validation basics to production-minded LLM, RAG & agent security**## **Student edition · English · Updated October 2026**  # **Prerequisites:** Basic Python, JSON, and introductory LLM knowledge.## > **Promise:** First learn with **executable, deterministic Python labs**. Then explore **real Guardrails AI validators**, **Microsoft Presidio**, and **OpenAI Structured Outputs** in optional labs.## | Track | Labs | Network | API key | Default Run All |# |:--|:--|:--|:--|:--|# | **CORE** | Pydantic, redaction, regex, injection tests, RAG authorization, tools, evaluation | No | No | ✅ |# | **HUB** | ProfanityFree, ToxicLanguage, DetectPII, RegexMatch, DetectJailbreak | Some downloads | No Guardrails key | ⏭️ Opt-in |# | **LLM** | OpenAI Structured Outputs + local post-validation | Yes | OpenAI key | ⏭️ Opt-in |## **Safety scope:** These labs are educational simulations, **not** a certified security product. No real money moves, no live medical advice is given, and no real personal data or secrets should be entered.
+# # 🛡️ AI Guardrails — Practical Masterclass v2# ### **From validation basics to production-minded LLM, RAG & agent security**## **Student edition · English · Updated October 2026**  # **Prerequisites:** Basic Python, JSON, and introductory LLM knowledge.## > **Promise:** First learn with **executable, deterministic Python labs**. Then explore **real Guardrails AI validators**, **Microsoft Presidio**, and **Groq structured outputs** in optional labs.## | Track | Labs | Network | API key | Default Run All |# |:--|:--|:--|:--|:--|# | **CORE** | Pydantic, redaction, regex, injection tests, RAG authorization, tools, evaluation | No | No | ✅ |# | **HUB** | ProfanityFree, ToxicLanguage, DetectPII, RegexMatch, DetectJailbreak | Some downloads | No Guardrails key | ⏭️ Opt-in |# | **LLM** | Groq structured output + local post-validation | Yes | Groq key | ⏭️ Opt-in |## **Safety scope:** These labs are educational simulations, **not** a certified security product. No real money moves, no live medical advice is given, and no real personal data or secrets should be entered.
 
 # %% [markdown] notebook cell 01
-# ## The course map## **MODULE A — Foundation**  # 01. Guardrails vs safety prompts · 02. Output schemas & Pydantic · 03. Validation actions · 04. Regex, format and toxicity thresholds## **MODULE B — Application Security**  # 05. PII redaction & Microsoft Presidio · 06. Prompt injection and jailbreaks · 07. RAG permissions · 08. Agent-tool authorization · 09. End-to-end pipeline## **MODULE C — Frameworks & Evaluation**  # 10. Guardrails AI Hub validators · 11. OpenAI Structured Outputs · 12. Automated evals · 13. Student exercises, answer key, deployment checklist## ### How to run# 1. Use **Python 3.10+**, ideally 3.11, in JupyterLab / VS Code / Colab.# 2. Install the **CORE** requirements: `python -m pip install "pydantic>=2.6,<3" ipykernel` (or `%pip install ...` inside a fresh notebook kernel).# 3. **Restart the kernel after installation**, then **Run All** with both opt-in flags set to `False`.# 4. Only enable optional labs after installing their stated packages and accepting local downloads/API cost.## **Why two tracks?** A production deployment must never depend on an untested runtime download or an accidental external API call.
+# ## The course map## **MODULE A — Foundation**  # 01. Guardrails vs safety prompts · 02. Output schemas & Pydantic · 03. Validation actions · 04. Regex, format and toxicity thresholds## **MODULE B — Application Security**  # 05. PII redaction & Microsoft Presidio · 06. Prompt injection and jailbreaks · 07. RAG permissions · 08. Agent-tool authorization · 09. End-to-end pipeline## **MODULE C — Frameworks & Evaluation**  # 10. Guardrails AI Hub validators · 11. Groq structured output · 12. Automated evals · 13. Student exercises, answer key, deployment checklist## ### How to run# 1. Use **Python 3.10+**, ideally 3.11, in JupyterLab / VS Code / Colab.# 2. Install the **CORE** requirements: `python -m pip install "pydantic>=2.6,<3" ipykernel` (or `%pip install ...` inside a fresh notebook kernel).# 3. **Restart the kernel after installation**, then **Run All** with all opt-in flags set to `False`.# 4. Only enable optional labs after installing their stated packages and accepting local downloads/API cost.## **Why two tracks?** A production deployment must never depend on an untested runtime download or an accidental external API call.
 
 # %% [code] notebook cell 02
 import os, re, json, sys, hashlib
@@ -32,14 +32,14 @@ import pydantic
 
 # Changing these to True opts into extra downloads or paid external calls.
 RUN_HUB_LABS = False
-RUN_OPENAI_LAB = False
+RUN_GROQ_LAB = False
 RUN_PRESIDIO_LAB = False
 
 print(f"Python {sys.version.split()[0]} | Pydantic {pydantic.__version__}")
 print("Optional modules:", {
     "Guardrails AI": RUN_HUB_LABS,
     "Presidio": RUN_PRESIDIO_LAB,
-    "OpenAI API": RUN_OPENAI_LAB,
+    "Groq API": RUN_GROQ_LAB,
 })
 
 # %% [markdown] notebook cell 03
@@ -93,7 +93,7 @@ except ValidationError:
     print("✅ Valid JSON is NOT automatically valid schema output")
 
 # %% [markdown] notebook cell 08
-# ### Common misconception: Structured Outputs vs JSON mode vs local Pydantic## - **JSON mode** aims for syntactically valid JSON but does not necessarily enforce the desired schema.# - **Structured Outputs** uses constrained schema generation on supported model/API combinations; still check refusals, incompleteness, business rules, and factual correctness.# - **Pydantic validation** checks data *after you receive it* (or before passing arguments to your tools). It works offline.# - **Guardrails AI** can run reusable validators and apply specified `on_fail` actions.## **Documentation:** [OpenAI Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) · [Pydantic](https://docs.pydantic.dev/latest/)
+# ### Common misconception: Structured Outputs vs JSON mode vs local Pydantic## - **JSON mode** aims for syntactically valid JSON but does not necessarily enforce the desired schema.# - **Structured output** uses schema-guided generation on supported model/API combinations; still check refusals, incompleteness, business rules, and factual correctness.# - **Pydantic validation** checks data *after you receive it* (or before passing arguments to your tools). It works offline.# - **Guardrails AI** can run reusable validators and apply specified `on_fail` actions.## **Documentation:** [LangChain ChatGroq integration](https://docs.langchain.com/oss/python/integrations/chat/groq) · [Pydantic](https://docs.pydantic.dev/latest/)
 
 # %% [markdown] notebook cell 09
 # # 03 · CORE lab: guardrail outcomes and failure actions## A rule alone is not enough. Decide how your app responds: **ALLOW**, **REDACT**, **BLOCK**, **RETRY**, or **ESCALATE**. In Guardrails AI, `on_fail` offers framework-specific options such as `noop`, `fix`, `exception`, `reask`; a reask is **not** the same as an automatically successful model retry unless an LLM reask workflow is actually supplied.
@@ -494,7 +494,7 @@ else:
     print("⏭️ Presidio lab skipped; requires optional dependencies / spaCy model")
 
 # %% [markdown] notebook cell 47
-# # 11 · OPTIONAL LLM lab: OpenAI Structured Outputs + post-validation## This section uses the **supported Responses API parsing helper**, `client.responses.parse(..., text_format=MyPydanticModel)`. **Do not use GPT-3.5 Turbo** from the old notebook. `gpt-4o-mini` is a documented Structured Outputs-compatible model; if model access changes, set `OPENAI_MODEL` via your environment.## **Before you opt in:**# 1. `%pip install "openai>=1.90,<3"` (then restart your kernel).# 2. Set your `OPENAI_API_KEY` in a secret store or environment variable. **Never print it or save it in notebook outputs.**# 3. Set `RUN_OPENAI_LAB = True` in the flags cell.# 4. Ensure your account can access the selected model; API usage may incur charges.## **Important:** Structured Outputs constrain format, but do not guarantee factual truth, harmlessness, or correct tool permissions. A model can refuse or provide incomplete output; handle those cases explicitly.## Official reference: https://developers.openai.com/api/docs/guides/structured-outputs
+# # 11 · OPTIONAL LLM lab: Groq structured output + post-validation## This section uses LangChain's `ChatGroq.with_structured_output(...)` integration with a Pydantic schema. The model returns schema-shaped data through Groq's tool-calling integration. The default model ID is `openai/gpt-oss-20b`, served through Groq; set `GROQ_MODEL` to another available Groq model that supports tool calling if needed.## **Before you opt in:**# 1. `%pip install langchain-groq` (then restart your kernel).# 2. Set `GROQ_API_KEY` in a secret store or environment variable. **Never print it or save it in notebook outputs.**# 3. Set `RUN_GROQ_LAB = True` in the flags cell.# 4. Ensure your account can access the selected model; API usage may incur charges.## **Important:** Structured output constrains format, but does not guarantee factual truth, harmlessness, or correct tool permissions. Always validate business rules locally.
 
 # %% [code] notebook cell 48
 # Keep the schema for remote structured generation simple; enforce extra
@@ -505,31 +505,27 @@ class LLMReview(BaseModel):
     sentiment: Literal["positive", "negative", "mixed"]
     key_points: list[str]
 
-if RUN_OPENAI_LAB:
-    if not os.environ.get("OPENAI_API_KEY"):
-        raise RuntimeError("OPENAI_API_KEY is missing. Use a secure secret store.")
-    from openai import OpenAI
-    client = OpenAI()  # reads OPENAI_API_KEY from environment
-    model_name = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    completion = client.responses.parse(
-        model=model_name,
-        input=[
-            {"role": "system", "content": "Return a factual movie review. Provide 2 to 3 key points. If you cannot comply, refuse."},
-            {"role": "user", "content": "Provide a short structured review of Inception."},
-        ],
-        text_format=LLMReview,
+if RUN_GROQ_LAB:
+    if not os.environ.get("GROQ_API_KEY"):
+        raise RuntimeError("GROQ_API_KEY is missing. Use a secure secret store.")
+    from langchain_groq import ChatGroq
+
+    model = ChatGroq(
+        model=os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
+        temperature=0,
     )
-    remote = completion.output_parsed
-    if remote is None:
-        print("No parsed output: refusal, incomplete response, or non-text response. Handle separately.")
-    else:
-        try:
-            strict_review = MovieReview.model_validate(remote.model_dump())
-            print("Local policy validation passed:", strict_review.model_dump())
-        except ValidationError as exc:
-            print("Local policy rejected schema-compatible response:", exc.errors()[0]["type"])
+    structured_model = model.with_structured_output(LLMReview)
+    remote = structured_model.invoke([
+        ("system", "Return a factual movie review. Provide 2 to 3 key points. If you cannot comply, refuse."),
+        ("human", "Provide a short structured review of Inception."),
+    ])
+    try:
+        strict_review = MovieReview.model_validate(remote.model_dump())
+        print("Local policy validation passed:", strict_review.model_dump())
+    except ValidationError as exc:
+        print("Local policy rejected schema-compatible response:", exc.errors()[0]["type"])
 else:
-    print("⏭️ OpenAI lab skipped: no API calls, no charges")
+    print("⏭️ Groq lab skipped: no API calls, no charges")
 
 # %% [markdown] notebook cell 49
 # # 12 · CORE lab: evaluation (confusion matrix + failure-mode tests)## In a production deployment you should quantify **detection quality, safety leakage, latency, cost and user experience**, including **false positives**.## | Metric | Question it answers |# |---|---|# | Precision | Among flagged samples, how many were actually attacks? |# | Recall | Among known attacks, how many were flagged? |# | False-positive rate | Among benign samples, how many were wrongly blocked? |# | Leak rate | Among protected sensitive samples, how many still leaked? |# | P95 latency | How slow do guardrails make the response? |## A small test set is not a security certification; a real eval needs realistic distributions, multilingual samples, obfuscation, new attack variants, and human-labeled ground truth.
@@ -613,8 +609,7 @@ assert all(value == "PASS" for value in results.values())
 # # 14 · Production checklist (beyond this notebook)## **Before deploying real AI or agentic workflows:**## - [ ] Maintain threat model: direct + indirect prompt injection, jailbreak, PII, unsafe tool use, data exfiltration.# - [ ] Validate input *and* output; classify risky cases with measured performance.# - [ ] Apply role/tenant/document ACLs at storage and tool layers; never let an LLM set privileges.# - [ ] Use scoped credentials and least privilege; no secrets in prompts, notebooks, source control or logs.# - [ ] Require explicit confirmation/step-up verification for high-impact or financial actions.# - [ ] Add rate limits, timeouts, bounded retries, idempotency, cost budgets and safe fallbacks.# - [ ] Version and pin dependencies; regression-test changes to models, prompts and validators.# - [ ] Evaluate accuracy/precision/recall, false-positive rate, redaction leak rate, latency and cost.# - [ ] Maintain human escalation path, rollback process and secure observability.# - [ ] Perform red-team testing and separate application-level security review.## **Source of truth for hard access decisions:** authenticated backend policy + database authorization, not natural-language instructions.
 
 # %% [markdown] notebook cell 56
-# # 15 · What's different from the uploaded v1 notebook?## This is a **restructured upgrade of the supplied notebook's core themes**, not a copy of its unsafe/outdated cells.## | Original topic | v2 treatment |# |---|---|# | Pydantic `MovieReview` | Added strict schema, enums, item-count and negative tests |# | Guardrails AI Hub installation / configuration | Migrated to public PyPI + `guardrails_ai` imports; no Guardrails Hub key |# | ProfanityFree | Kept as opt-in real validator lab |# | ToxicLanguage | Fixed threshold direction; explicit classifier caveats |# | DetectPII | Replaced broken domain-string redaction with whole-entity baseline; added real validator + Presidio labs |# | RegexMatch | Offline baseline + Hub implementation |# | DetectJailbreak | Updated import, model download and detector limitations |# | Homegrown prompt-injection regex | Added adversarial counterexamples, precision/recall and mitigation architecture |# | OpenAI calls | Updated to Responses API Structured Outputs, supported model family, environment secrets |# | General theory | Added RAG ACLs, server-side tool policies, simulated bank transfer, end-to-end integration and tests |# | Saved outputs in original | Not copied. **No secrets or credential output carried into v2.** |## **Execution scope:** Offline CORE is intended to be run and verified locally. HUB and OpenAI sections are **opt-in integration labs**; they require their own installations/credentials and must be tested in the teaching environment.
+# # 15 · What's different from the uploaded v1 notebook?## This is a **restructured upgrade of the supplied notebook's core themes**, not a copy of its unsafe/outdated cells.## | Original topic | v2 treatment |# |---|---|# | Pydantic `MovieReview` | Added strict schema, enums, item-count and negative tests |# | Guardrails AI Hub installation / configuration | Migrated to public PyPI + `guardrails_ai` imports; no Guardrails Hub key |# | ProfanityFree | Kept as opt-in real validator lab |# | ToxicLanguage | Fixed threshold direction; explicit classifier caveats |# | DetectPII | Replaced broken domain-string redaction with whole-entity baseline; added real validator + Presidio labs |# | RegexMatch | Offline baseline + Hub implementation |# | DetectJailbreak | Updated import, model download and detector limitations |# | Homegrown prompt-injection regex | Added adversarial counterexamples, precision/recall and mitigation architecture |# | LLM calls | Uses Groq structured output through LangChain, plus local validation and environment secrets |# | General theory | Added RAG ACLs, server-side tool policies, simulated bank transfer, end-to-end integration and tests |# | Saved outputs in original | Not copied. **No secrets or credential output carried into v2.** |## **Execution scope:** Offline CORE is intended to be run and verified locally. HUB and Groq sections are **opt-in integration labs**; they require their own installations/credentials and must be tested in the teaching environment.
 
 # %% [markdown] notebook cell 57
-# # 16 · Official references / further reading## The links below were checked while preparing this edition. Software APIs evolve: pin/test the stack you use in class.## 1. **Guardrails AI Hub migration (August 25, 2026):** https://github.com/guardrails-ai/guardrails/blob/main/HUB_UPDATE.md# 2. **Guardrails AI validator catalog:** https://guardrailsai.com/hub# 3. **Profanity Free:** https://guardrailsai.com/hub/validator/guardrails/profanity_free# 4. **Toxic Language:** https://guardrailsai.com/hub/validator/guardrails/toxic_language# 5. **Detect PII:** https://guardrailsai.com/hub/validator/guardrails/detect_pii# 6. **Regex Match:** https://guardrailsai.com/hub/validator/guardrails/regex_match# 7. **Detect Jailbreak:** https://guardrailsai.com/hub/validator/guardrails/detect_jailbreak# 8. **Microsoft Presidio:** https://microsoft.github.io/presidio/# 9. **OpenAI Structured Outputs:** https://developers.openai.com/api/docs/guides/structured-outputs# 10. **OpenAI Python SDK parsing helpers:** https://github.com/openai/openai-python/blob/main/helpers.md# 11. **Pydantic:** https://docs.pydantic.dev/latest/# 12. **OWASP Top 10 for LLM Applications:** https://genai.owasp.org/llm-top-10/## ---## ### 🏁 You are ready for the next exercise when you can answer:# **What should my app allow, block, redact, retry, or escalate—and which security decision must never be delegated to the LLM?**
-
+# # 16 · Official references / further reading## The links below were checked while preparing this edition. Software APIs evolve: pin/test the stack you use in class.## 1. **Guardrails AI Hub migration (August 25, 2026):** https://github.com/guardrails-ai/guardrails/blob/main/HUB_UPDATE.md# 2. **Guardrails AI validator catalog:** https://guardrailsai.com/hub# 3. **Profanity Free:** https://guardrailsai.com/hub/validator/guardrails/profanity_free# 4. **Toxic Language:** https://guardrailsai.com/hub/validator/guardrails/toxic_language# 5. **Detect PII:** https://guardrailsai.com/hub/validator/guardrails/detect_pii# 6. **Regex Match:** https://guardrailsai.com/hub/validator/guardrails/regex_match# 7. **Detect Jailbreak:** https://guardrailsai.com/hub/validator/guardrails/detect_jailbreak# 8. **Microsoft Presidio:** https://microsoft.github.io/presidio/# 9. **LangChain ChatGroq integration:** https://docs.langchain.com/oss/python/integrations/chat/groq# 10. **Pydantic:** https://docs.pydantic.dev/latest/# 11. **OWASP Top 10 for LLM Applications:** https://genai.owasp.org/llm-top-10/## ---## ### 🏁 You are ready for the next exercise when you can answer:# **What should my app allow, block, redact, retry, or escalate—and which security decision must never be delegated to the LLM?**
