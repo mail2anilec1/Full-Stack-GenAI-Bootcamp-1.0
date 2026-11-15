@@ -1,0 +1,16 @@
+# DeepEval metrics and custom judge support
+deepeval
+pydantic
+
+# Groq judge and RAG model
+langchain-core
+langchain-groq
+
+# Local Hugging Face embeddings
+langchain-huggingface
+sentence-transformers
+
+# Notebook imports
+python-dotenv
+pandas
+tqdm
