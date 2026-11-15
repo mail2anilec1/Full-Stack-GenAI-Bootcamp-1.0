@@ -1,0 +1,44 @@
+question,response,expected_tools,actual_tool_calls,tool_correctness,tool_correctness_reason,argument_correctness,argument_correctness_reason,goal_accuracy,goal_accuracy_reason
+"Plan a Dubai trip from Bangalore.
+Find flights from Bangalore to Dubai
+and find a 4-star hotel in Dubai.","**Dubai Trip Plan from Bangalore**
+
+| **Flights (Bangalore → Dubai)** | **Price** | **Stop** |
+|---------------------------------|-----------|----------|
+| Emirates EK569 | ₹28,000 | Non‑stop |
+| Air India AI995 | ₹24,500 | 1 stop |
+
+| **4‑Star Hotels in Dubai** | **Price per Night** |
+|----------------------------|---------------------|
+| Novotel Dubai | ₹8,500 |
+| Hilton Garden Inn Dubai | ₹9,200 |
+
+Feel free to let me know if you’d like to book any of these options or need additional details!","[""search_flights({'origin': 'Bangalore', 'destination': 'Dubai'})"", ""find_hotels({'city': 'Dubai', 'stars': 4})""]","[""search_flights({'destination': 'Dubai', 'origin': 'Bangalore'})"", ""find_hotels({'city': 'Dubai', 'stars': 4})""]",1.0,"[
+	 Tool Calling Reason: All expected tools ['search_flights', 'find_hotels'] were called (order not considered).
+	 Tool Selection Reason: No available tools were provided to assess tool selection criteria
+]
+",1.0,"The score is 1.00 because the assistant provided a complete and accurate plan for the Dubai trip, including flight options and a suitable 4‑star hotel, meeting all user requirements.",1.0,"The agent achieved perfect scores on both goal execution and plan evaluation (1.0 each), fully satisfying the user’s request for flights from Bangalore to Dubai and 4‑star hotel options. The combined final score of 1.0 far exceeds the 0.7 threshold, confirming that both planning and execution were sufficient to meet the goal. Therefore the agent passes."
+Find flights from Bangalore to Singapore.,"Here are the available flights from Bangalore to Singapore:
+
+| Airline | Flight | Price | Stop(s) |
+|---------|--------|-------|---------|
+| Emirates | EK569 | ₹28,000 | Non‑stop |
+| Air India | AI995 | ₹24,500 | 1 stop |
+
+Let me know if you’d like to book one of these or need more options!","[""search_flights({'origin': 'Bangalore', 'destination': 'Singapore'})""]","[""search_flights({'destination': 'Singapore', 'origin': 'Bangalore'})""]",1.0,"[
+	 Tool Calling Reason: All expected tools ['search_flights'] were called (order not considered).
+	 Tool Selection Reason: No available tools were provided to assess tool selection criteria
+]
+",1.0,The score is 1.00 because the answer correctly identified flight options from Bangalore to Singapore without errors.,1.0,"The agent achieved perfect scores on both goal execution and plan evaluation (1.0 each), indicating it fully met the user’s request to list flights from Bangalore to Singapore. The combined final score of 1.0 far exceeds the 0.7 threshold, confirming a successful outcome. Therefore the agent passes."
+Find a 5-star hotel in Mumbai.,"Here are the 5‑star hotels available in Mumbai:
+
+| # | Hotel | Price (per night) |
+|---|-------|-------------------|
+| 1 | Novotel Mumbai | ₹8,500 |
+| 2 | Hilton Garden Inn Mumbai | ₹9,200 |
+
+Let me know if you’d like more details or assistance with booking!","[""find_hotels({'city': 'Mumbai', 'stars': 5})""]","[""find_hotels({'city': 'Mumbai', 'stars': 5})""]",1.0,"[
+	 Tool Calling Reason: All expected tools ['find_hotels'] were called (order not considered).
+	 Tool Selection Reason: No available tools were provided to assess tool selection criteria
+]
+",1.0,The score is 1.00 because the response fully satisfies the request with no errors.,0.0,"The agent scored 0.0 on both goal execution and plan evaluation, showing it failed to provide any 5‑star hotels and did not present a plan. Because the final combined score of 0.0 is far below the 0.7 threshold, the agent fails the evaluation. The lack of correct hotel selection and missing plan caused the failure."

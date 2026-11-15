@@ -2,9 +2,14 @@
 deepeval
 pydantic
 
-# Groq judge and RAG model
+# Ragas agent evaluation
+ragas
+
+# Groq agent and Ragas OpenAI-compatible client
+langchain
 langchain-core
 langchain-groq
+openai
 
 # Local Hugging Face embeddings
 langchain-huggingface
